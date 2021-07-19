@@ -78,8 +78,8 @@ public class AccountService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
-
         Account account = accountRepository.findByEmail(emailOrNickname);
+
         if (account == null) {
             account = accountRepository.findByNickname(emailOrNickname);
         }
@@ -87,7 +87,7 @@ public class AccountService implements UserDetailsService {
         if (account == null) {
             throw new UsernameNotFoundException(emailOrNickname);
         }
-
+        // principle 객체를 리턴해야 함.
         return new UserAccount(account);
     }
 }
