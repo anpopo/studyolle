@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class AccountService implements UserDetailsService {
@@ -36,6 +37,9 @@ public class AccountService implements UserDetailsService {
 
         // email 보내기
         sendSignUpConfirmEmail(newAccount);
+        
+        // 스프링 스큐리티가 관리하는 로그인 설정
+        login(newAccount);
 
         return newAccount;
     }
@@ -76,6 +80,7 @@ public class AccountService implements UserDetailsService {
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
         Account account = accountRepository.findByEmail(emailOrNickname);
@@ -89,5 +94,10 @@ public class AccountService implements UserDetailsService {
         }
         // principle 객체를 리턴해야 함.
         return new UserAccount(account);
+    }
+
+    public void completeSignUp(Account account) {
+        account.completeSignUp();
+        login(account);
     }
 }
