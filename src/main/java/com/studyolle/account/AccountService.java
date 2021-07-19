@@ -6,6 +6,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -15,7 +16,7 @@ public class AccountService {
     private final JavaMailSender javaMailSender;
     private final PasswordEncoder passwordEncoder;
 
-
+    @Transactional  // repository 계층에서 transaction 이 끝나기 때문에 detached 된 newAccount 에 대해서 persist상태를 유지하기 위해 transaction 사용
     public void processNewAccount(SignUpForm signUpForm) {
         // 회원가입용 객체 만들기
         Account newAccount = saveNewAccount(signUpForm);

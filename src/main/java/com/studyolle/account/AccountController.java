@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Controller
@@ -22,6 +23,7 @@ public class AccountController {
 
     private final SignUpFormValidator signUpFormValidator;
     private final AccountService accountService;
+    private final AccountRepository accountRepository;
 
     // validator 추가
     @InitBinder("signUpForm")
@@ -45,6 +47,33 @@ public class AccountController {
 
         accountService.processNewAccount(signUpForm);
         return "redirect:/";
+    }
+
+    // 이메일 토큰 확인
+    @GetMapping("/check-email-token")
+    public String checkEmailToken(String token, String email, Model model) {
+        Account account = accountRepository.findByEmail(email);
+
+        String view = "account/checked-email";
+
+        if (account == null) {
+            model.addAttribute("error", "wrong.email");
+            return view;
+        }
+
+        if(!account.getEmailCheckToken().equals(token)){
+            model.addAttribute("error", "wrong.token");
+            return view;
+        }
+
+        account.setEmailVerified(true);
+        account.setJoinedAt(LocalDateTime.now());
+        model.addAttribute("numberOfUser", accountRepository.count());
+        model.addAttribute("nickname", account.getNickname());
+        return view;
+
+
+
     }
 
 }
