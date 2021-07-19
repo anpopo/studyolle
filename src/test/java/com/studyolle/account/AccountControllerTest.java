@@ -1,5 +1,6 @@
 package com.studyolle.account;
 
+import com.studyolle.domain.Account;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,11 +65,15 @@ class AccountControllerTest {
         mockMvc.perform(post("/sign-up")
                 .param("nickname", "anpopo")
                 .param("email", "dkstpgud@gmail.com")
-                .param("password", "15423we145")
+                .param("password", "12345678")
                 .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
 
+        Account account = accountRepository.findByEmail("dkstpgud@gmail.com");
+        Assertions.assertNotNull(account);
+
+        Assertions.assertNotEquals(account.getPassword(), "123456789");
         // 유저 확인
         Assertions.assertTrue(accountRepository.existsByEmail("dkstpgud@gmail.com"));
         

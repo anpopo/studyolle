@@ -23,7 +23,6 @@ public class AccountController {
     private final SignUpFormValidator signUpFormValidator;
     private final AccountService accountService;
 
-
     // validator 추가
     @InitBinder("signUpForm")
     public void initBinder(WebDataBinder webDataBinder) {
