@@ -63,7 +63,6 @@ public class Account {
     }
 
     public boolean canSendConfirmEmail() {
-        
         // 제일 처음 재전송 메일을 보내는 경우
         if(this.emailCheckTokenGeneratedAt == null) {
             return resetEmailCheckTokenGeneratedTime();
