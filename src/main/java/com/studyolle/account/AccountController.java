@@ -70,13 +70,15 @@ public class AccountController {
         return view;
 
     }
-
+    
+    // 이메일 확인
     @GetMapping("/check-email")
     public String checkEmail(@CurrentUser Account account, Model model) {
         model.addAttribute("email", account.getEmail());
         return "account/check-email";
     }
 
+    // 이메일 재전송
     @GetMapping("/resend-confirm-email")
     public String resendEmail(@CurrentUser Account account, Model model) {
         if(!account.canSendConfirmEmail()) {
@@ -90,6 +92,7 @@ public class AccountController {
         return "redirect:/";
     }
 
+    // 프로필 보기
     @GetMapping("/profile/{nickname}")
     public String viewProfile(@PathVariable String nickname, Model model, @CurrentUser Account account) {
         Account byNickname = accountRepository.findByNickname(nickname);
