@@ -1,15 +1,14 @@
 package com.studyolle.account;
 
 import com.studyolle.domain.Account;
-import com.studyolle.settings.Notifications;
-import com.studyolle.settings.Profile;
+import com.studyolle.settings.form.Notifications;
+import com.studyolle.settings.form.Profile;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -28,6 +27,7 @@ public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
     private final JavaMailSender javaMailSender;
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
     @Transactional  // repository 계층에서 transaction 이 끝나기 때문에 detached 된 newAccount 에 대해서 persist상태를 유지하기 위해 transaction 사용
     public Account processNewAccount(SignUpForm signUpForm) {
@@ -104,11 +104,13 @@ public class AccountService implements UserDetailsService {
     }
 
     public void updateProfile(Account account, Profile profile) {
-        account.setUrl(profile.getUrl());
-        account.setBio(profile.getBio());
-        account.setOccupation(profile.getOccupation());
-        account.setLocation(profile.getLocation());
-        account.setProfileImage(profile.getProfileImage());
+
+        modelMapper.map(profile, account);
+//        account.setUrl(profile.getUrl());
+//        account.setBio(profile.getBio());
+//        account.setOccupation(profile.getOccupation());
+//        account.setLocation(profile.getLocation());
+//        account.setProfileImage(profile.getProfileImage());
 
         accountRepository.save(account);
     }
@@ -120,13 +122,21 @@ public class AccountService implements UserDetailsService {
     }
 
     public void updateNotifications(Account account, Notifications notifications) {
-        account.setStudyCreatedByWeb(notifications.isStudyCreatedByWeb());
-        account.setStudyCreatedByEmail(notifications.isStudyCreatedByEmail());
-        account.setStudyEnrollmentResultByWeb(notifications.isStudyEnrollmentResultByWeb());
-        account.setStudyEnrollmentResultByEmail(notifications.isStudyEnrollmentResultByEmail());
-        account.setStudyUpdatedByWeb(notifications.isStudyUpdatedByWeb());
-        account.setStudyUpdatedByEmail(notifications.isStudyUpdatedByEmail());
+
+        modelMapper.map(notifications, account);
+//        account.setStudyCreatedByWeb(notifications.isStudyCreatedByWeb());
+//        account.setStudyCreatedByEmail(notifications.isStudyCreatedByEmail());
+//        account.setStudyEnrollmentResultByWeb(notifications.isStudyEnrollmentResultByWeb());
+//        account.setStudyEnrollmentResultByEmail(notifications.isStudyEnrollmentResultByEmail());
+//        account.setStudyUpdatedByWeb(notifications.isStudyUpdatedByWeb());
+//        account.setStudyUpdatedByEmail(notifications.isStudyUpdatedByEmail());
 
         accountRepository.save(account);
+    }
+
+    public void updateNickname(Account account, String nickname) {
+        account.setNickname(nickname);
+        accountRepository.save(account);
+        login(account);
     }
 }
