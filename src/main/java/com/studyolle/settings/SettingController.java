@@ -62,7 +62,7 @@ public class SettingController {
     public String updatePassword(@CurrentUser Account account, @Valid PasswordForm passwordForm, Errors errors,
                                  Model model, RedirectAttributes redirectAttributes
     ) {
-        if(errors.hasErrors()){
+        if (errors.hasErrors()) {
             model.addAttribute(account);
             return "settings/password";
         }
@@ -71,5 +71,26 @@ public class SettingController {
         redirectAttributes.addFlashAttribute("message", "비밀번호를 변경 했습니다.");
 
         return "redirect:/settings/password";
+    }
+
+    @GetMapping("/settings/notifications")
+    public String updateNotificationsForm(@CurrentUser Account account, Model model) {
+        model.addAttribute(account);
+        model.addAttribute(new Notifications(account));
+        return "settings/notifications";
+    }
+
+    @PostMapping("/settings/notifications")
+    public String updateNotification(@CurrentUser Account account, @Valid Notifications notifications, Errors errors,
+                                     Model model, RedirectAttributes redirectAttributes) {
+
+        if (errors.hasErrors()) {
+            model.addAttribute(account);
+            return "settings/notifications";
+        }
+
+        accountService.updateNotifications(account, notifications);
+        redirectAttributes.addFlashAttribute("message", "알림 설정을 변경했습니다.");
+        return "redirect:/settings/notifications";
     }
 }
