@@ -4,6 +4,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -14,10 +16,10 @@ public class Account {
     @Id @GeneratedValue
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String nickname;
 
     private String password;
@@ -47,6 +49,9 @@ public class Account {
     private boolean studyEnrollmentResultByWeb = true;
     private boolean studyUpdatedByEmail;
     private boolean studyUpdatedByWeb = true;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    private Set<Tag> tags = new HashSet<>();
 
 
     public void generateEmailCheckToken() {

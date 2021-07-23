@@ -1,27 +1,30 @@
 package com.studyolle.settings;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyolle.account.AccountService;
 import com.studyolle.account.CurrentUser;
 import com.studyolle.domain.Account;
-import com.studyolle.settings.form.NicknameForm;
-import com.studyolle.settings.form.Notifications;
-import com.studyolle.settings.form.PasswordForm;
-import com.studyolle.settings.form.Profile;
+import com.studyolle.domain.Tag;
+import com.studyolle.settings.form.*;
 import com.studyolle.settings.validator.NicknameValidator;
 import com.studyolle.settings.validator.PasswordFormValidator;
+import com.studyolle.tag.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RequestMapping("/settings")
@@ -32,9 +35,11 @@ public class SettingController {
     private static final String SETTINGS_PROFILE_URL = "/settings/profile";
 
     private final AccountService accountService;
+    private final TagRepository tagRepository;
     private final ModelMapper modelMapper;
     private final PasswordFormValidator passwordFormValidator;
     private final NicknameValidator nicknameValidator;
+    private final ObjectMapper objectMapper;
 
     @InitBinder("passwordForm")
     public void passwordFormInitBinder(WebDataBinder webDataBinder) {
@@ -129,4 +134,50 @@ public class SettingController {
 
         return "redirect:/settings/account";
     }
+
+    @GetMapping("/tags")
+    public String updateTagsForm(@CurrentUser Account account, Model model) throws JsonProcessingException {
+        model.addAttribute(account);
+
+        Set<Tag> tags = accountService.getTags(account);
+        model.addAttribute("tags", tags.stream().map(Tag::getTitle).collect(Collectors.toList()));
+
+        List<String> allTags = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
+
+        model.addAttribute("whiteList", objectMapper.writeValueAsString(allTags));
+
+        return "settings/tags";
+    }
+
+    @ResponseBody
+    @PostMapping("/tags/add")
+    public ResponseEntity addTags(@CurrentUser Account account, @RequestBody TagForm tagForm) {
+        String title = tagForm.getTagTitle();
+        Tag tag = tagRepository.findByTitle(title)
+                .orElseGet(() -> tagRepository.save(
+                        Tag.builder()
+                                .title(tagForm.getTagTitle())
+                                .build()
+                        )
+                );
+
+        accountService.addTag(account, tag);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/tags/remove")
+    public ResponseEntity removeTag(@CurrentUser Account account, @RequestBody TagForm tagForm) {
+        String title = tagForm.getTagTitle();
+
+        Optional<Tag> tag = tagRepository.findByTitle(title);
+
+        if (tag.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        accountService.removeTag(account, tag.get());
+        return ResponseEntity.ok().build();
+    }
+
 }
