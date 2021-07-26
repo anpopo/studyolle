@@ -118,7 +118,7 @@ public class AccountController {
     }
 
     @PostMapping("/email-login")
-    public String sendEmailLoginLing(String email, Model model, RedirectAttributes redirectAttributes) {
+    public String sendEmailLogin(String email, Model model, RedirectAttributes redirectAttributes) {
         Account account = accountRepository.findByEmail(email);
         if (account == null) {
             model.addAttribute("error", "유효한 이메일 주소가 아닙니다.");
