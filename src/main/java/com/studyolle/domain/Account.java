@@ -90,4 +90,8 @@ public class Account {
         this.emailCheckTokenGeneratedAt = LocalDateTime.now();
         return true;
     }
+
+    public boolean isManagerOf(Study study) {
+        return study.getManagers().contains(this);
+    }
 }

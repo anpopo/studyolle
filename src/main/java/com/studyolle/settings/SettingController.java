@@ -11,6 +11,7 @@ import com.studyolle.settings.form.*;
 import com.studyolle.settings.validator.NicknameValidator;
 import com.studyolle.settings.validator.PasswordFormValidator;
 import com.studyolle.tag.TagRepository;
+import com.studyolle.tag.TagService;
 import com.studyolle.zone.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,7 @@ public class SettingController {
     private final PasswordFormValidator passwordFormValidator;
     private final NicknameValidator nicknameValidator;
     private final ObjectMapper objectMapper;
+    private final TagService tagService;
 
     @InitBinder("passwordForm")
     public void passwordFormInitBinder(WebDataBinder webDataBinder) {
@@ -159,13 +161,7 @@ public class SettingController {
     @PostMapping("/tags/add")
     public ResponseEntity addTags(@CurrentUser Account account, @RequestBody TagForm tagForm) {
         String title = tagForm.getTagTitle();
-        Tag tag = tagRepository.findByTitle(title)
-                .orElseGet(() -> tagRepository.save(
-                        Tag.builder()
-                                .title(tagForm.getTagTitle())
-                                .build()
-                        )
-                );
+        Tag tag = tagService.findOrCreateNew(tagForm.getTagTitle());
 
         accountService.addTag(account, tag);
 
@@ -206,8 +202,6 @@ public class SettingController {
     @ResponseBody
     @PostMapping("/zones/add")
     public ResponseEntity addZone(@CurrentUser Account account, @RequestBody ZoneForm zoneForm) {
-        log.info("zoneName = {}", zoneForm.getZoneName());
-
         Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
 
         if (zone == null) {

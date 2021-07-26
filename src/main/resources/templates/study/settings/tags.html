@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments.html :: head"></head>
+
+<body class="bg-light">
+    <div th:replace="fragments.html :: main-nav"></div>
+    <div th:replace="fragments.html :: study-banner"></div>
+    <div class="container">
+        <div th:replace="fragments.html :: study-info"></div>
+        <div th:replace="fragments.html :: study-menu(studyMenu='settings')"></div>
+        <div class="row mt-3 justify-content-center">
+            <div class="col-2">
+                <div th:replace="fragments.html :: study-settings-menu(currentMenu='tags')"></div>
+            </div>
+            <div class="col-8">
+                <div class="row">
+                    <h2 class="col-sm-12">스터디 주제</h2>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-info" role="alert">
+                            스터디에서 주로 다루는 주제를 태그로 등록하세요. 태그를 입력하고 콤마(,) 또는 엔터를 입력하세요.
+                        </div>
+                        <div id="whiteList" th:text="${whiteList}" hidden></div>
+                        <input id="tags" type="text" name="tags" th:value="${#strings.listJoin(tags,',')}"
+                               class="tagify--outside" aria-describedby="tagHelp" placeholder="관심있는 주제를 입력하세요.">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="fragments.html :: footer"></div>
+    </div>
+    <script th:replace="fragments.html :: tooltip"></script>
+    <script src="/node_modules/@yaireo/tagify/dist/tagify.min.js"></script>
+    <script th:replace="fragments.html :: ajax-csrf-header"></script>
+    <script type="application/javascript" th:inline="javascript">
+          $(function() {
+
+                var studyPath = "[(${study.path})]";
+             function tagRequest(url, tagTitle) {
+                $.ajax({
+                    dataType: "json",
+                    autocomplete: {
+                        enabled: true,
+                        rightKey: true,
+                    },
+                    contentType: "application/json; charset=utf-8",
+                    method: "POST",
+                    url: "/study/" + studyPath + "/settings/tags" + url,
+                    data: JSON.stringify({'tagTitle': tagTitle})
+                }).done(function (data, status) {
+                    console.log("${data} and status is ${status}");
+                });
+             };
+
+              function onAdd(e) {
+                tagRequest("/add", e.detail.data.value);
+              };
+
+              function onRemove(e) {
+                tagRequest("/remove", e.detail.data.value);
+              }
+
+           var tagInput = document.querySelector('input[name=tags]')
+
+            // init Tagify script on the above inputs
+            var tagify = new Tagify(tagInput, {
+              pattern: /^.{1,20}$/,
+              maxTags: 20,
+              whitelist: JSON.parse(document.querySelector("#whiteList").textContent),
+              dropdown: {
+                maxItems: Infinity,
+                position: "input",
+                enabled: 0,
+                closeOnSelect: true
+              },
+            })
+
+            tagify.on("add", onAdd);
+            tagify.on("remove", onRemove)
+          });
+        </script>
+</body>
+</html>
