@@ -1,11 +1,11 @@
 package com.studyolle.modules.event;
 
-import com.studyolle.modules.account.CurrentUser;
 import com.studyolle.modules.account.Account;
+import com.studyolle.modules.account.CurrentUser;
 import com.studyolle.modules.event.form.EventForm;
 import com.studyolle.modules.event.validator.EventValidator;
-import com.studyolle.modules.study.StudyService;
 import com.studyolle.modules.study.Study;
+import com.studyolle.modules.study.StudyService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
