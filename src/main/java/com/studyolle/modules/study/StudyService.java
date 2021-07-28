@@ -25,7 +25,6 @@ public class StudyService {
     public Study createNewStudy(Study study, Account account) {
         Study newStudy = studyRepository.save(study);
         newStudy.addManager(account);
-//        eventPublisher.publishEvent(new StudyCreatedEvent(newStudy));
         return newStudy;
     }
 
@@ -57,6 +56,7 @@ public class StudyService {
 
     public void updateStudyDescription(Study study, StudyDescriptionForm studyDescriptionForm) {
         modelMapper.map(studyDescriptionForm, study);
+        this.eventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디 소개를 수정했습니다."));
     }
 
     public void updateStudyImage(Study study, String image) {
@@ -108,6 +108,8 @@ public class StudyService {
 
     public void close(Study study) {
         study.close();
+        this.eventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디를 종료했습니다."));
+
     }
 
     public Study getStudyToUpdateStatus(Account account, String path) {
@@ -119,10 +121,14 @@ public class StudyService {
 
     public void startRecruit(Study study) {
         study.startRecruit();
+        this.eventPublisher.publishEvent(new StudyUpdateEvent(study, "팀원 모집을 시작합니다."));
+
     }
 
     public void stopRecruit(Study study) {
         study.stopRecruit();
+        this.eventPublisher.publishEvent(new StudyUpdateEvent(study, "팀원 모집을 종료합니다."));
+
     }
 
     public boolean isValidPath(String newPath) {
