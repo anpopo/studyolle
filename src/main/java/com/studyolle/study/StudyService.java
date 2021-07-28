@@ -166,4 +166,13 @@ public class StudyService {
             throw new IllegalArgumentException("스터디에서 탈퇴할 수 없습니다.");
         }
     }
+
+    public Study getStudyToEnroll(String path) {
+
+        Study study = studyRepository.findStudyOnlyByPath(path);
+        if (study == null) {
+            throw new IllegalArgumentException(path + "에 해당ㅎ나느 스터대ㅣ가 없습니다.");
+        }
+        return study;
+    }
 }
