@@ -88,7 +88,7 @@ public class Study {
     private boolean useBanner;
 
     public String getImage() {
-        return image != null ? image : "/images/default-banner.png";
+        return image != null ? image : "/images/default_banner.png";
     }
 
     public String getEncodedPath(){
