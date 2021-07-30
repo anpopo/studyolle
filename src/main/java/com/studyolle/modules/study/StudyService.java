@@ -3,13 +3,19 @@ package com.studyolle.modules.study;
 import com.studyolle.modules.account.Account;
 import com.studyolle.modules.study.event.StudyCreatedEvent;
 import com.studyolle.modules.tag.Tag;
+import com.studyolle.modules.tag.TagRepository;
+import com.studyolle.modules.tag.TagService;
 import com.studyolle.modules.zone.Zone;
 import lombok.RequiredArgsConstructor;
+import net.bytebuddy.utility.RandomString;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.Optional;
 
 import static com.studyolle.modules.study.form.StudyForm.VALID_PATH_PATTERN;
 
@@ -21,6 +27,8 @@ public class StudyService {
     private final StudyRepository studyRepository;
     private final ModelMapper modelMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final TagService tagService;
+
 
     public Study createNewStudy(Study study, Account account) {
         Study newStudy = studyRepository.save(study);
@@ -170,7 +178,7 @@ public class StudyService {
 
     public void removeMember(Study study, Account account) {
         if (study.checkMember(account)) {
-            study.getMembers().remove(account);
+            study.removeMember(account);
         } else {
             throw new IllegalArgumentException("스터디에서 탈퇴할 수 없습니다.");
         }
@@ -183,5 +191,30 @@ public class StudyService {
             throw new IllegalArgumentException(path + "에 해당ㅎ나느 스터대ㅣ가 없습니다.");
         }
         return study;
+    }
+
+    public void generatedTestStudies(Account account) {
+        for (int i = 0; i < 30; i++) {
+            String randomValue = RandomString.make(5);
+
+            Study study = Study.builder()
+                    .title("테스트 스터디 " + randomValue)
+                    .path("test-" + randomValue)
+                    .shortDescription("테스트용 스터디 입니다.")
+                    .fullDescription("test")
+                    .tags(new HashSet<>())
+                    .managers(new HashSet<>())
+                    .zones(new HashSet<>())
+                    .members(new HashSet<>())
+                    .build();
+
+            study.publish();
+
+            Study newStudy = this.createNewStudy(study, account);
+
+            Tag tag = tagService.findOrCreateNew("JPA");
+            newStudy.getTags().add(tag);
+
+        }
     }
 }

@@ -87,6 +87,9 @@ public class Study {
     private boolean closed;
     private boolean useBanner;
 
+    @Column(nullable = true)
+    private int memberCount;
+
     public String getImage() {
         return image != null ? image : "/images/default_banner.png";
     }
@@ -165,9 +168,15 @@ public class Study {
 
     public void addMember(Account account) {
         this.members.add(account);
+        this.memberCount++;
     }
 
     public boolean isManagedBy(Account account) {
         return this.getManagers().contains(account);
+    }
+
+    public void removeMember(Account account) {
+        this.members.remove(account);
+        this.memberCount--;
     }
 }

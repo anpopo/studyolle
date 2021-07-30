@@ -84,4 +84,10 @@ public class StudyController {
         studyService.removeMember(study, account);
         return "redirect:/study/" + study.getEncodedPath() + "/members";
     }
+
+    @GetMapping("/study/data")
+    public String generatedTestData(@CurrentUser Account account) {
+        studyService.generatedTestStudies(account);
+        return "redirect:/";
+    }
 }
