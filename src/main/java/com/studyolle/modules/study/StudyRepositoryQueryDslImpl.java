@@ -1,4 +1,4 @@
-package com.studyolle.modules.study.validator;
+package com.studyolle.modules.study;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.JPQLQuery;
@@ -30,7 +30,6 @@ public class StudyRepositoryQueryDslImpl extends QuerydslRepositorySupport imple
                 .or(study.zones.any().localNameOfCity.containsIgnoreCase(keyword)))
                 .leftJoin(study.tags, QTag.tag).fetchJoin()
                 .leftJoin(study.zones, QZone.zone).fetchJoin()
-                .leftJoin(study.members, QAccount.account).fetchJoin()
                 .distinct();
 
         JPQLQuery<Study> pageableQuery = getQuerydsl().applyPagination(pageable, query);

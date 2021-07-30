@@ -26,6 +26,8 @@ public class MainController {
         if (account != null) {
             model.addAttribute(account);
         }
+
+        model.addAttribute("studyList", studyRepository.findFirst9ByPublishedAndClosedOrderByPublishedDateTimeDesc(true, false));
         return "index";
     }
 
@@ -35,14 +37,18 @@ public class MainController {
     }
 
     @GetMapping("/search/study")  // size, page, sort
-    public String searchStudy(@PageableDefault(size = 9, page = 0, sort = "publishedDateTime", direction = Sort.Direction.DESC) Pageable pageable,
+    public String searchStudy(@CurrentUser Account account,
+            @PageableDefault(size = 9, page = 0, sort = "publishedDateTime", direction = Sort.Direction.DESC) Pageable pageable,
                               String keyword, Model model) {
         Page<Study> studyPage = studyRepository.findByKeyword(keyword, pageable);
+
+        if (account != null) {
+            model.addAttribute(account);
+        }
 
         model.addAttribute("studyPage", studyPage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("sortProperty", pageable.getSort().toString().contains("publishedDateTime") ? "publishedDateTime" : "memberCount");
-
 
         return "search";
     }
